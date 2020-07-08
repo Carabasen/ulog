@@ -17,12 +17,12 @@ namespace fs = std::filesystem;
 //_CRT_DISABLE_PERFCRIT_LOCKS
 constexpr bool ulog_log2con = true;
 constexpr bool ulog_log2file = true;
-constexpr bool ulog_force_flush = true; // fflush every write
-constexpr bool ulog_time_to_console = false; // add timestamps to console, if not, timestaps are written only to a log file
-constexpr int ulog_max_files = 15; // max log files before rotating
-#define ULOG_EXT ".log"
-#define ULOG_PREFIX "ulog_"
-std::string ULog::log_file_path;
+constexpr bool ulog_force_flush = true;       // fflush every write
+constexpr bool ulog_time_to_console = false;  // add timestamps to console, if not, timestaps are written only to a log file
+constexpr int ulog_max_files = 15;            // max log files before rotating
+#define ULOG_EXT ".log"                       // ulog file extension
+#define ULOG_PREFIX "ulog_"                   // ulog file prefix
+std::string ULog::log_file_path;              // path to store log files, if empty, then the current working directory is used
 //---------------------------------------------------------------------
 std::string ULog::log_file_name;
 
