@@ -24,15 +24,6 @@ struct UUser
 //---------------------------------------------------------------------
 int main()
 {
-	// log_perf_test();
-	// char s[] = "Literal: ";
-	// std::string_view sv("str_view ");
-	// user_class uc(12, 4);
-	// ulog(s, "literal ", sv, "c", 12, uc, user_class(33, 3));
-	// //ulog(s, "literal ", 'c', 12, 12.0f, 12.0, uc, user_class(33, 3));
-	// std::string str("simple string");
-	// ulog.val(str.c_str(), str);
-
 	std::string fname = "useful_file.txt";
 	bool isOpened = true;
 
