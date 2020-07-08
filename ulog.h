@@ -1,8 +1,20 @@
  #pragma once
 #include <string>
+/*
+Usage:
+	Basic usage:
 
-#define ERR(...) ulog.val("ERR: ", __VA_ARGS__, __FUNCTION__, __FILE__, __LINE__)
-#define WARN(...) ulog.val("WARN: ", __VA_ARGS__, __FUNCTION__, __FILE__, __LINE__)
+	ulog.val("Anything you want to log", strings, numbers, user_types, "separated by comma");          // ulog.val("Number is", 0); -> "Number is 0"
+	ulog("same as ulog.val", "but the parameters are not automatically separated by a space");         // ulog("Number is", 0); -> "Number is0" 
+	ERR("Macro wrap for errors", "same as ulog.val plus function name, file name and line number ");   // ERR("Code", 0); -> "ERR:  0, main [ C:\ulog\ulog_test\ulog_test.cpp 97 ]"
+	WARN("Same as ERR, but WARN");
+	LOG(...) - macro for log name/value at once                                                        // bool needMoney = true; LOG(needMoney); -> "needMoney = true"
+	ulog.pf(...) - good old printf, if someone need to, plus timestamp and file log.
+
+	For detailed description please refer to https://github.com/Carabasen/ulog
+*/
+#define ERR(...) ulog.val("ERR: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
+#define WARN(...) ulog.val("WARN: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define LOG(...) ulog.val(#__VA_ARGS__, "=", __VA_ARGS__)
 
 //---------------------------------------------------------------------
@@ -51,25 +63,21 @@ class ULog
 public:
 	static ULog &get_instance();
 
-	void line() { str_internal("----------"); }
-	template<class... Args> void val(const Args &... args) { val_internal(args...); }
-	template<class... Args> void operator()(const Args &... args) { str_internal(args...); }
-
-protected:
-	template<class... Args> static void str_internal(const Args &... args)
-	{
-		UMsg s;
-		s(args...);
-		get_instance().to_log(s.get_buf());
-	}
-
-	template<class... Args> static void val_internal(const Args &... args)
+	template<class... Args> void val(const Args &... args)
 	{
 		UMsg s;
 		s.val(args...);
 		get_instance().to_log(s.get_buf());
 	}
-
+	template<class... Args> void operator()(const Args &... args)
+	{
+		UMsg s;
+		s(args...);
+		get_instance().to_log(s.get_buf());
+	}
+	// if someone need to...
+	void pf(char const *const format, ...);
+	
 private:
 	ULog();
 	~ULog();
