@@ -17,11 +17,11 @@ The Unlicense
 * Rotating log files
 * Millisecond precision timestamps
 * Easy to use, just call 
-  ``` C++
+  ``` c++
 	ulog("Anything you want to log", strings, numbers, user_types, "separated by comma");
   ```
 * User defined types logging via friend operator
-  ``` C++
+  ``` c++
 	friend UMsg &operator+(UMsg &msg, const UUserType &p)
 	{
 		return msg("Anything..", strings, numbers, user_types, "separated by comma");
@@ -33,7 +33,7 @@ The Unlicense
 
 ## Usage
 * Basic
-  ``` C++
+  ``` c++
 	#include "ulog.h"
 	...
 	std::string fname = "useful_file.txt";
@@ -71,7 +71,7 @@ The Unlicense
 	//"[27.09.2019 18:48:35:964] isOpened = true"
   ```
 * User types
-  ``` C++
+  ``` c++
 	#include "ulog.h"
 	...
 	struct UPoint3f
@@ -105,7 +105,7 @@ The Unlicense
 
   ```
 * Settings
-  ``` C++
+  ``` c++
 	//--------------------------------------------------------------------- settings
 	constexpr bool ulog_log2con = true;
 	constexpr bool ulog_log2file = true;
