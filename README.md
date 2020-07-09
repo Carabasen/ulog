@@ -78,7 +78,6 @@ The Unlicense
 	{
 		friend UMsg &operator+(UMsg &msg, const UPoint3f &p)
 		{
-			//return msg("x = ", p.x, ", y = ", p.y, ", z = ", p.z);
 			return msg(p.x, ", ", p.y, ", ", p.z);
 		}
 		float x, y, z;
