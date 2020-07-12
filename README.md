@@ -24,7 +24,7 @@ The Unlicense
   ``` C++
 	friend UMsg &operator+(UMsg &msg, const UUserType &p)
 	{
-		return msg("Anything..", strings, numbers, user_types, "separated by comma");
+		return msg("Anything..", p.strings, p.numbers, p.user_types, "separated by comma");
 	}
 	...
 	UUserType ut;
