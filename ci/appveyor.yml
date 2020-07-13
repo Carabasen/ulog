@@ -1,0 +1,40 @@
+version: 1.0.{build}-{branch}
+pull_requests:
+  do_not_increment_build_number: false
+
+clone_depth: 1
+
+environment:
+  matrix:
+  - job_name: Ubuntu2004
+    appveyor_build_worker_image: Ubuntu2004
+  - job_name: VS2019x64_D
+    appveyor_build_worker_image: Visual Studio 2019
+    configuration: Debug
+    platform: x64
+  - job_name: VS2019x64_R
+    appveyor_build_worker_image: Visual Studio 2019
+    configuration: Release
+    platform: x64
+  - job_name: VS2019x86_D
+    appveyor_build_worker_image: Visual Studio 2019
+    configuration: Debug
+    platform: x86
+  - job_name: VS2019x86_R
+    appveyor_build_worker_image: Visual Studio 2019
+    configuration: Release
+    platform: x86
+
+build:
+  project: example/msvs2019/ulog_example.sln
+  verbosity: normal
+
+for:
+- 
+  matrix:
+    only:
+      - job_name: Ubuntu2004
+  build_script:
+    - cd example
+    - sudo update-alternatives --set gcc /usr/bin/gcc-9
+    - ./build.sh
