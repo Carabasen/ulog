@@ -27,7 +27,7 @@ environment:
 
 build:
   project: example/msvs2019/ulog_example.sln
-  verbosity: normal
+  verbosity: minimal
 
 for:
 - 
