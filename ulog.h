@@ -5,7 +5,7 @@ Usage:
 	Basic usage:
 
 	ulog.val("Anything you want to log", strings, numbers, user_types, "separated by comma");          // ulog.val("Number is", 0); -> "Number is 0"
-	ulog("same as ulog.val", "but the parameters are not automatically separated by a space");         // ulog("Number is", 0); -> "Number is0" 
+	ulog("same as ulog.val", "but the parameters are not separated by a space automatically");         // ulog("Number is", 0); -> "Number is0" 
 	ERR("Macro wrap for errors", "same as ulog.val plus function name, file name and line number ");   // ERR("Code", 0); -> "ERR:  0, main [ C:\ulog\ulog_test\ulog_test.cpp 97 ]"
 	WARN("Same as ERR, but WARN");
 	LOG(...) - macro for log name/value at once                                                        // bool needMoney = true; LOG(needMoney); -> "needMoney = true"

@@ -45,7 +45,7 @@ The Unlicense
 	ulog.val("Any number of parameters separated by comma", fname, "opened =", isOpened);
 	// "[27.09.2019 18:48:35:963] Any number of parameters separated by comma useful_file.txt opened = true"
 
-	// ulog(...) - same as ulog.val(...) but the parameters are not automatically separated by a space
+	// ulog(...) - same as ulog.val(...) but the parameters are not separated by a space automatically
 	ulog(fname, " is opened = ", isOpened);
 	// "[27.09.2019 18:48:35:964] useful_file.txt is opened = true"
 	ulog("Processing...");
