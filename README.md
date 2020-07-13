@@ -1,5 +1,5 @@
 # ulog
-Fast, lightweight and compact C++17 logging library
+Fast, lightweight and compact C++17 logging library. [![Build status](https://ci.appveyor.com/api/projects/status/0rc9kvnal4n4g4a1?svg=true)](https://ci.appveyor.com/project/Carabasen/ulog)
 
 ## License
 The Unlicense
