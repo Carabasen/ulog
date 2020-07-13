@@ -22,6 +22,10 @@
 # Executables
 *.exe
 
+# User-specific files
+*.vs
+*.vcxproj.user
+
 # Various
 *.todo
 .ignore/
