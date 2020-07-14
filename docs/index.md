@@ -13,7 +13,7 @@ The Unlicense
 * Cross-platform
 * Thread safe
 * No third-party "includes" and monstrous iostream
-* Multiple log tagets: console and/or file
+* Multiple log targets: console and/or file
 * Rotating log files
 * Millisecond precision timestamps
 * Easy to use, just call 
