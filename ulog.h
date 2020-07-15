@@ -57,43 +57,47 @@ private:
 	std::string buf;
 };
 
-//---------------------------------------------------------------------
-class ULog
+namespace unm
 {
-public:
-	static ULog &get_instance();
-	static void flush() { fflush(log_file); }
-
-	template<class... Args> void val(const Args &... args)
+	class UVigilantCaller;
+	//---------------------------------------------------------------------
+	class ULog
 	{
-		UMsg s;
-		s.val(args...);
-		get_instance().to_log(s.get_buf());
-	}
-	template<class... Args> void operator()(const Args &... args)
-	{
-		UMsg s;
-		s(args...);
-		get_instance().to_log(s.get_buf());
-	}
-	// if someone need to...
-	void pf(char const *const format, ...);
-	
-private:
-	ULog();
-	~ULog();
+	public:
+		static ULog &get_instance();
+		void flush() { fflush(log_file); }
 
-	bool create_log_file();
-	void rotate_log_file();
-	void to_log(const std::string &buf);
+		template<class... Args> void val(const Args &... args)
+		{
+			UMsg s;
+			s.val(args...);
+			get_instance().to_log(s.get_buf());
+		}
+		template<class... Args> void operator()(const Args &... args)
+		{
+			UMsg s;
+			s(args...);
+			get_instance().to_log(s.get_buf());
+		}
+		// if someone need to...
+		void pf(char const *const format, ...);
 
-	inline std::string current_time();
-	inline std::string current_date();
+	private:
+		ULog();
+		~ULog();
 
-private:
-	static std::string log_file_name;
-	static std::string log_file_path;
-	static std::FILE *log_file;
-};
+		bool create_log_file();
+		void rotate_log_file();
+		void to_log(const std::string &buf);
 
-extern ULog &ulog;
+		inline std::string current_time();
+		inline std::string current_date();
+
+	private:
+		static std::string log_file_name;
+		static std::string log_file_path;
+		static std::FILE *log_file;
+		UVigilantCaller *flusher;
+	};
+}
+extern unm::ULog &ulog;
