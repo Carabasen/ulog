@@ -25,9 +25,9 @@ namespace unm
 	//_CRT_DISABLE_PERFCRIT_LOCKS
 	constexpr bool log2con = true;
 	constexpr bool log2file = true;
-	constexpr bool timestamps_in_console = false;     // add timestamps to console, if not, timestaps are written only to a log file
-	constexpr int flush_interval_ms = 100;        // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
-	constexpr int max_files = 15;               // max log files before rotating
+	constexpr bool timestamps_in_console = false;    // add timestamps to console, if not, timestaps are written only to a log file
+	constexpr int flush_interval_ms = 100;           // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
+	constexpr int max_files = 15;                    // max log files before rotating
 	constexpr std::string_view ulog_ext(".log");     // ulog file extension
 	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
 	std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used

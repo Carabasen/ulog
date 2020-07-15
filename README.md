@@ -16,6 +16,7 @@ The Unlicense
 * Multiple log targets: console and/or file
 * Rotating log files
 * Millisecond precision timestamps
+* Flexible log file flush interval setting
 * Easy to use, just call 
   ``` c++
 	ulog("Anything you want to log", strings, numbers, user_types, "separated by comma");
@@ -107,12 +108,12 @@ The Unlicense
 * Settings
   ``` c++
 	//--------------------------------------------------------------------- settings
-	constexpr bool ulog_log2con = true;
-	constexpr bool ulog_log2file = true;
-	constexpr bool ulog_force_flush = true;       // fflush every write
-	constexpr bool ulog_time_to_console = false;  // add timestamps to console, if not, timestaps are written only to a log file
-	constexpr int ulog_max_files = 15;            // max log files before rotating
-	#define ULOG_EXT ".log"                       // ulog file extension
-	#define ULOG_PREFIX "ulog_"                   // ulog file prefix
-	std::string ULog::log_file_path;              // path to store log files, if empty, then the current working directory is used
+	constexpr bool log2con = true;
+	constexpr bool log2file = true;
+	constexpr bool timestamps_in_console = false;    // add timestamps to console, if not, timestaps are written only to a log file
+	constexpr int flush_interval_ms = 100;           // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
+	constexpr int max_files = 15;                    // max log files before rotating
+	constexpr std::string_view ulog_ext(".log");     // ulog file extension
+	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
+	std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
   ```
