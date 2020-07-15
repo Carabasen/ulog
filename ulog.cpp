@@ -1,4 +1,5 @@
 #include "ulog.h"
+
 #include <chrono>
 #include <filesystem>
 #include <vector>
@@ -17,16 +18,17 @@ namespace fs = std::filesystem;
 //_CRT_DISABLE_PERFCRIT_LOCKS
 constexpr bool ulog_log2con = true;
 constexpr bool ulog_log2file = true;
-constexpr bool ulog_force_flush = true;       // fflush every write
-constexpr bool ulog_time_to_console = false;  // add timestamps to console, if not, timestaps are written only to a log file
-constexpr int ulog_max_files = 15;            // max log files before rotating
-#define ULOG_EXT ".log"                       // ulog file extension
-#define ULOG_PREFIX "ulog_"                   // ulog file prefix
-std::string ULog::log_file_path;              // path to store log files, if empty, then the current working directory is used
+constexpr bool ulog_time_to_console = false;     // add timestamps to console, if not, timestaps are written only to a log file
+constexpr int ulog_flush_interval_ms = 0;        // interval betwen log file flush, 0 - fflush every write, -1 - do not flush at all
+constexpr int ulog_max_files = 15;               // max log files before rotating
+constexpr std::string_view ulog_ext(".log");     // ulog file extension
+constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
+std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
 //---------------------------------------------------------------------
-std::string ULog::log_file_name;
 
+std::string ULog::log_file_name;
 FILE *ULog::log_file = nullptr;
+
 ULog &ulog = ULog::get_instance();
 
 //--------------------------------------------------------------------- ULog
@@ -62,7 +64,7 @@ bool ULog::create_log_file()
 {
 	if (nullptr != log_file) fclose(log_file);
 	if (log_file_path.empty()) log_file_path = fs::current_path().string(); else fs::create_directories(log_file_path);
-	log_file_name = ULOG_PREFIX + current_date() + ULOG_EXT;
+	log_file_name = ulog_prefix.data() + current_date() + ulog_ext.data();
 #ifdef _WIN32
 	log_file = _fsopen((log_file_path + "/" + log_file_name).c_str(), "a+", _SH_DENYWR);
 #else
@@ -79,7 +81,7 @@ void ULog::rotate_log_file()
 	for (const auto &entry : fs::directory_iterator(log_file_path))
 	{
 		auto name = entry.path().filename().string();
-		if (ULOG_EXT == entry.path().extension().string() && log_file_name.size() == name.size())
+		if (ulog_ext == entry.path().extension().string() && log_file_name.size() == name.size())
 		{
 			logs.emplace_back(std::move(name));
 		}
@@ -114,7 +116,7 @@ void ULog::to_log(const std::string &buf)
 		if (nullptr != log_file)
 		{
 			fprintf(log_file, "%s %s\n", current_time().c_str(), buf.c_str());
-			if constexpr (ulog_force_flush) fflush(log_file);
+			if constexpr (0 == ulog_flush_interval_ms) flush();
 		}
 	}
 }

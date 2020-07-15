@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 #include <string>
 /*
 Usage:
@@ -62,6 +62,7 @@ class ULog
 {
 public:
 	static ULog &get_instance();
+	static void flush() { fflush(log_file); }
 
 	template<class... Args> void val(const Args &... args)
 	{
