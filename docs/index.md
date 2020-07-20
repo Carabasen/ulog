@@ -9,19 +9,20 @@ The Unlicense
 * Linux
 
 ## Features
-* Very fast, lightweight and compact
-* Cross-platform
-* Thread safe
-* No third-party "includes" and monstrous iostream
-* Multiple log targets: console and/or file
-* Rotating log files
-* Millisecond precision timestamps
-* Flexible log file flush interval setting
-* Easy to use, just call 
+* Very fast, lightweight and compact.
+* Cross-platform.
+* Thread safe.
+* Custom thread names: `ulog.set_this_thread_name("UI thread");`
+* No third-party "includes" and monstrous iostream.
+* Multiple log targets: console and/or file.
+* Rotating log files.
+* Millisecond precision timestamps.
+* Flexible log file flush interval setting.
+* Easy to use, just call:
   ``` c++
 	ulog("Anything you want to log", strings, numbers, user_types, "separated by comma");
   ```
-* User defined types logging via friend operator
+* User defined types logging via friend operator:
   ``` c++
 	friend UMsg &operator+(UMsg &msg, const UUserType &p)
 	{
@@ -44,32 +45,32 @@ The Unlicense
 	// accepts a variable number of parameters
 	// each call - one line of the log with timestamp
 	ulog.val("Any number of parameters separated by comma", fname, "opened =", isOpened);
-	// "[27.09.2019 18:48:35:963] Any number of parameters separated by comma useful_file.txt opened = true"
+	// "[27.09.2019 18:48:35:963] [main] Any number of parameters separated by comma useful_file.txt opened = true"
 
 	// ulog(...) - same as ulog.val(...) but the parameters are not separated by a space automatically
 	ulog(fname, " is opened = ", isOpened);
-	// "[27.09.2019 18:48:35:964] useful_file.txt is opened = true"
+	// "[27.09.2019 18:48:35:964] [main] useful_file.txt is opened = true"
 	ulog("Processing...");
-	// "[27.09.2019 18:48:35:964] Processing..."
+	// "[27.09.2019 18:48:35:964] [main] Processing..."
 
 	// ulog.pf(...) - good old printf, if someone need to, plus timestamp and file log.
 	char txt[] = "horse";
 	ulog.pf("Good old %s, from %ds", txt, 2000);
 	// same as
 	ulog("Good old ", txt, ", from ", 2000, "s");
-	//"[27.09.2019 18:48:35:964] Good old horse, from 2000s"
+	//"[27.09.2019 18:48:35:964] [main] Good old horse, from 2000s"
 
 	// ERR - Macros for errors, same as ulog.val(...) plus function name, file name and line number
 	ERR("File not found", fname);
-	//"[27.09.2019 18:48:35:964] ERR:  File not found useful_file.txt [ main C:\ulog\ulog_test\ulog_test.cpp 97 ]"
+	//"[27.09.2019 18:48:35:964] [main] ERR:  File not found useful_file.txt [ main C:\ulog\ulog_test\ulog_test.cpp 97 ]"
 	
 	// WARN - same as ERR, but WARN
 	WARN("File not found", fname);
-	//"[27.09.2019 18:48:35:964] WARN:  File not found useful_file.txt [ main C:\ulog\ulog_test\ulog_test.cpp 99 ]"
+	//"[27.09.2019 18:48:35:964] [main] WARN:  File not found useful_file.txt [ main C:\ulog\ulog_test\ulog_test.cpp 99 ]"
 	
 	// LOG(...) - macro for log name/value at once
 	LOG(isOpened);
-	//"[27.09.2019 18:48:35:964] isOpened = true"
+	//"[27.09.2019 18:48:35:964] [main] isOpened = true"
   ```
 * User types
   ``` c++
@@ -101,7 +102,7 @@ The Unlicense
 		UPoint3f pos{ 122.3f, 17.4f, 442.0f };
 		UUser user{ "Vaniya", 120, pos };
 		ulog.val("User:", user);
-		//"[27.09.2019 18:48:35:965] User: name(Vaniya), HP(120), pos(122.300003, 17.400000, 442.000000)"
+		//"[27.09.2019 18:48:35:965] [main] User: name(Vaniya), HP(120), pos(122.300003, 17.400000, 442.000000)"
 	}
 
   ```
@@ -116,4 +117,5 @@ The Unlicense
 	constexpr std::string_view ulog_ext(".log");     // ulog file extension
 	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
 	std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
+	constexpr bool add_thread_names = true;          // add thread name to each log line
   ```
