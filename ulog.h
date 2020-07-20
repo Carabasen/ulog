@@ -17,7 +17,7 @@ Usage:
 #define WARN(...) ulog.val("WARN: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define LOG(...) ulog.val(#__VA_ARGS__, "=", __VA_ARGS__)
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------- UMsg
 // todo maybe std::to_chars for better perfomance?
 // todo add wstring
 class UMsg
@@ -59,13 +59,15 @@ private:
 
 namespace unm
 {
+	using std::string;
 	class UVigilantCaller;
-	//---------------------------------------------------------------------
+
+	//--------------------------------------------------------------------- unm::ULog
 	class ULog
 	{
 	public:
 		static ULog &get_instance();
-		static void set_this_thread_name(const std::string &name);
+		static void set_this_thread_name(const string &name);
 		void flush() { fflush(log_file); }
 
 		template<class... Args> void val(const Args &... args)
@@ -89,16 +91,16 @@ namespace unm
 
 		bool create_log_file();
 		void rotate_log_file();
-		void to_log(const std::string &buf);
+		void to_log(const string &buf);
 
-		std::string current_time();
-		std::string current_date();
+		string current_time();
+		string current_date();
 
 	private:
-		static std::string log_file_name;
-		static std::string log_file_path;
+		static string log_file_name;
+		static string log_file_path;
 		static std::FILE *log_file;
-		static thread_local std::string fmt_thread_name;
+		static thread_local string fmt_thread_name;
 
 		UVigilantCaller *flusher;
 	};

@@ -31,12 +31,12 @@ namespace unm
 	constexpr int max_files = 15;                    // max log files before rotating
 	constexpr std::string_view ulog_ext(".log");     // ulog file extension
 	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
-	std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
+	string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
 	constexpr bool add_thread_names = true;          // add current thread name to each log line
 	//---------------------------------------------------------------------
-	std::string ULog::log_file_name;
+	string ULog::log_file_name;
 	FILE *ULog::log_file = nullptr;
-	thread_local std::string ULog::fmt_thread_name;
+	thread_local string ULog::fmt_thread_name;
 	
 	// we are doing our best to minimize includes in the header, so... some more clutter here
 	static std::atomic<int> default_thread_id(1);
@@ -91,7 +91,7 @@ namespace unm
 		return instance;
 	}
 	//---------------------------------------------------------------------
-	void ULog::set_this_thread_name(const std::string &name)
+	void ULog::set_this_thread_name(const string &name)
 	{
 		if (name.empty())
 		{
@@ -149,7 +149,7 @@ namespace unm
 	//---------------------------------------------------------------------
 	void ULog::rotate_log_file()
 	{
-		std::vector<std::string> logs;
+		std::vector<string> logs;
 
 		for (const auto &entry : fs::directory_iterator(log_file_path))
 		{
@@ -169,10 +169,10 @@ namespace unm
 		}
 	}
 	//---------------------------------------------------------------------
-	void ULog::to_log(const std::string &buf)
+	void ULog::to_log(const string &buf)
 	{
-		std::string prefix;
-		const std::string cur_time = current_time();
+		string prefix;
+		const string cur_time = current_time();
 
 		// set simply default thread name
 		if (fmt_thread_name.empty())
@@ -201,7 +201,7 @@ namespace unm
 		}
 	}
 	//---------------------------------------------------------------------
-	std::string ULog::current_time()
+	string ULog::current_time()
 	{
 		auto msec_se = ch::duration_cast<ch::milliseconds>(ch::system_clock::now().time_since_epoch()).count();
 		time_t sec_se = time_t(msec_se / 1000);
@@ -211,10 +211,10 @@ namespace unm
 		char time_buf[64];
 		snprintf(time_buf, sizeof(time_buf), "[%02d.%02d.%04d %02d:%02d:%02d:%03d] ",
 			1 + t.tm_mon, t.tm_mday, 1900 + t.tm_year, t.tm_hour, t.tm_min, t.tm_sec, static_cast<int>(msec_se % 1000));
-		return std::string(time_buf);
+		return string(time_buf);
 	}
 	//---------------------------------------------------------------------
-	std::string ULog::current_date()
+	string ULog::current_date()
 	{
 		time_t sec_se = time_t(ch::duration_cast<ch::seconds>(ch::system_clock::now().time_since_epoch()).count());
 		tm t;
@@ -222,6 +222,6 @@ namespace unm
 
 		char date_buf[32];
 		snprintf(date_buf, sizeof(date_buf), "%04d-%02d-%02d", 1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday);
-		return std::string(date_buf);
+		return string(date_buf);
 	}
 }
