@@ -65,6 +65,7 @@ namespace unm
 	{
 	public:
 		static ULog &get_instance();
+		static void set_this_thread_name(const std::string &name);
 		void flush() { fflush(log_file); }
 
 		template<class... Args> void val(const Args &... args)
@@ -90,13 +91,15 @@ namespace unm
 		void rotate_log_file();
 		void to_log(const std::string &buf);
 
-		inline std::string current_time();
-		inline std::string current_date();
+		std::string current_time();
+		std::string current_date();
 
 	private:
 		static std::string log_file_name;
 		static std::string log_file_path;
 		static std::FILE *log_file;
+		static thread_local std::string fmt_thread_name;
+
 		UVigilantCaller *flusher;
 	};
 }

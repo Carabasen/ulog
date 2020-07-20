@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <functional>
 #include <thread>
+#include <atomic>
 
 #ifndef _WIN32
 	#define localtime_s(t, sse) localtime_r(sse, t)
@@ -31,11 +32,14 @@ namespace unm
 	constexpr std::string_view ulog_ext(".log");     // ulog file extension
 	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
 	std::string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
+	constexpr bool add_thread_names = true;          // add current thread name to each log line
 	//---------------------------------------------------------------------
 	std::string ULog::log_file_name;
 	FILE *ULog::log_file = nullptr;
-
+	thread_local std::string ULog::fmt_thread_name;
+	
 	// we are doing our best to minimize includes in the header, so... some more clutter here
+	static std::atomic<int> default_thread_id(1);
 	//--------------------------------------------------------------------- UVigilantCaller
 	class UVigilantCaller
 	{
@@ -87,6 +91,23 @@ namespace unm
 		return instance;
 	}
 	//---------------------------------------------------------------------
+	void ULog::set_this_thread_name(const std::string &name)
+	{
+		if (name.empty())
+		{
+			ERR("[ULOG.thread_name] cannot be set empty");
+			return;
+		}
+
+		auto old_name = fmt_thread_name;
+		fmt_thread_name = "[" + name + "] ";
+
+		if (!old_name.empty() && fmt_thread_name != old_name)
+		{
+			ulog("[ULOG.thread_name] was ", old_name, "now ", fmt_thread_name);
+		}
+	}
+	//---------------------------------------------------------------------
 	// pf() is officially not recommended, use ulog() and ulog.val() instead
 	//---------------------------------------------------------------------
 	void ULog::pf(char const *const format, ...)
@@ -103,6 +124,7 @@ namespace unm
 	{
 		if constexpr (log2file) create_log_file();
 		flusher = new UVigilantCaller(flush_interval_ms, [this]() {this->flush(); });
+		set_this_thread_name("main");
 	}
 	//---------------------------------------------------------------------
 	ULog::~ULog()
@@ -149,26 +171,33 @@ namespace unm
 	//---------------------------------------------------------------------
 	void ULog::to_log(const std::string &buf)
 	{
+		std::string prefix;
+		const std::string cur_time = current_time();
+
+		// set simply default thread name
+		if (fmt_thread_name.empty())
+		{
+			//set_this_thread_name(std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
+			set_this_thread_name("thread " + std::to_string(default_thread_id++));
+		}
+		
 		// printf and fprintf is mt safe by POSIX
 		if constexpr (log2con)
 		{
-			if constexpr (timestamps_in_console)
-			{
-				printf("%s %s\n", current_time().c_str(), buf.c_str());
-			}
-			else
-			{
-				printf("%s\n", buf.c_str());
-			}
+			if constexpr (timestamps_in_console) prefix = cur_time;
+			if constexpr (add_thread_names) prefix += fmt_thread_name;
+			printf("%s%s\n", prefix.c_str(), buf.c_str());
 		}
 
-		if constexpr (log2file)
+		if (log2file && nullptr != log_file)
 		{
-			if (nullptr != log_file)
+			if constexpr (!timestamps_in_console)
 			{
-				fprintf(log_file, "%s %s\n", current_time().c_str(), buf.c_str());
-				if constexpr (0 == flush_interval_ms) flush();
+				prefix = cur_time;
+				if constexpr (add_thread_names) prefix += fmt_thread_name;
 			}
+			fprintf(log_file, "%s%s\n", prefix.c_str(), buf.c_str());
+			if constexpr (0 == flush_interval_ms) flush();
 		}
 	}
 	//---------------------------------------------------------------------
@@ -180,7 +209,7 @@ namespace unm
 		localtime_s(&t, &sec_se);
 
 		char time_buf[64];
-		snprintf(time_buf, sizeof(time_buf), "[%02d.%02d.%04d %02d:%02d:%02d:%03d]",
+		snprintf(time_buf, sizeof(time_buf), "[%02d.%02d.%04d %02d:%02d:%02d:%03d] ",
 			1 + t.tm_mon, t.tm_mday, 1900 + t.tm_year, t.tm_hour, t.tm_min, t.tm_sec, static_cast<int>(msec_se % 1000));
 		return std::string(time_buf);
 	}
