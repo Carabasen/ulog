@@ -1,5 +1,5 @@
 # ulog
-Fast, lightweight and compact C++17 logging library
+Fast, lightweight, cross-platform and compact C++17 logging library.
 
 ## License
 The Unlicense
