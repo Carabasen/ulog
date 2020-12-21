@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>
 #include <string>
 /*
 Usage:
@@ -23,7 +24,7 @@ Usage:
 class UMsg
 {
 public:
-	template<class T> UMsg &operator+(T p) { buf += std::to_string(p); return *this; }
+	template<class T> std::enable_if_t<std::is_arithmetic_v<T>, UMsg &> operator+(T p) { buf += std::to_string(p); return *this; }
 	UMsg &operator+(bool p) { buf += p ? "true" : "false"; return *this; }
 	UMsg &operator+(const char *p) { buf.append(p); return *this; }
 	UMsg &operator+(const unsigned char *p) { buf.append(reinterpret_cast<const char *>(p)); return *this; }
