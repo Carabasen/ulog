@@ -1,4 +1,4 @@
-#include "ulog.h"
+﻿#include "ulog.h"
 
 #include <chrono>
 #include <filesystem>
@@ -9,11 +9,34 @@
 #include <functional>
 #include <thread>
 #include <atomic>
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 
 #ifndef _WIN32
 	#define localtime_s(t, sse) localtime_r(sse, t)
 	#define vsprintf_s vsprintf
 #endif
+
+namespace unm
+{
+	//--------------------------------------------------------------------- settings block
+	//_CRT_DISABLE_PERFCRIT_LOCKS
+	constexpr bool log2con = true;
+	constexpr bool log2file = true;
+	constexpr bool timestamps_in_console = false;          // add timestamps to console, if not, timestaps are written only to a log file
+	constexpr int flush_interval_ms = 100;                 // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
+	constexpr int max_files = 15;                          // max log files before rotating
+	constexpr bool add_thread_names = true;                // add current thread name to each log line
+	ustring ULog::file_path = utf8_to_native(u8"");        // ulog file prefix UTF8
+	ustring ULog::file_prefix = utf8_to_native(u8"ulog_"); // ulog file extension UTF8
+	ustring ULog::file_ext = utf8_to_native(u8".log");     // path to store log files, if empty, then the current working directory is used UTF8
+	//---------------------------------------------------------------------
+	ustring ULog::file_name;
+
+	FILE *ULog::log_file = nullptr;
+	thread_local string ULog::fmt_thread_name;
+}
 
 unm::ULog &ulog = unm::ULog::get_instance();
 
@@ -22,22 +45,19 @@ namespace unm
 	namespace ch = std::chrono;
 	namespace fs = std::filesystem;
 
-	//--------------------------------------------------------------------- settings block
-	//_CRT_DISABLE_PERFCRIT_LOCKS
-	constexpr bool log2con = true;
-	constexpr bool log2file = true;
-	constexpr bool timestamps_in_console = false;    // add timestamps to console, if not, timestaps are written only to a log file
-	constexpr int flush_interval_ms = 100;           // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
-	constexpr int max_files = 15;                    // max log files before rotating
-	constexpr std::string_view ulog_ext(".log");     // ulog file extension
-	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
-	string ULog::log_file_path;                 // path to store log files, if empty, then the current working directory is used
-	constexpr bool add_thread_names = true;          // add current thread name to each log line
-	//---------------------------------------------------------------------
-	string ULog::log_file_name;
-	FILE *ULog::log_file = nullptr;
-	thread_local string ULog::fmt_thread_name;
-	
+	ustring utf8_to_native(const std::string &istr)
+	{
+	#ifdef _WIN32
+		if (istr.empty()) return std::wstring();
+		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &istr[0], (int)istr.size(), NULL, 0);
+		std::wstring wstr(size_needed, 0);
+		MultiByteToWideChar(CP_UTF8, 0, &istr[0], (int)istr.size(), &wstr[0], size_needed);
+		return wstr;
+	#else
+		return istr;
+	#endif
+	}
+
 	// we are doing our best to minimize includes in the header, so... some more clutter here
 	static std::atomic<int> default_thread_id(1);
 	//--------------------------------------------------------------------- UVigilantCaller
@@ -99,7 +119,7 @@ namespace unm
 			return;
 		}
 
-		auto old_name = fmt_thread_name;
+		string old_name = fmt_thread_name;
 		fmt_thread_name = "[" + name + "] ";
 
 		if (!old_name.empty() && fmt_thread_name != old_name)
@@ -136,12 +156,13 @@ namespace unm
 	bool ULog::create_log_file()
 	{
 		if (nullptr != log_file) fclose(log_file);
-		if (log_file_path.empty()) log_file_path = fs::current_path().string(); else fs::create_directories(log_file_path);
-		log_file_name = ulog_prefix.data() + current_date() + ulog_ext.data();
+		if (file_path.empty()) file_path = fs::current_path().native(); else fs::create_directories(file_path);
+		auto date = current_date();
+		file_name = file_prefix + ustring(date.begin(), date.end()) + file_ext;
 #ifdef _WIN32
-		log_file = _fsopen((log_file_path + "/" + log_file_name).c_str(), "a+", _SH_DENYWR);
+		log_file = _wfsopen((file_path + L"/" + file_name).c_str(), L"a+", _SH_DENYWR);
 #else
-		log_file = fopen((log_file_path + "/" + log_file_name).c_str(), "a+");
+		log_file = fopen((file_path + "/" + file_name).c_str(), "a+");
 #endif
 		rotate_log_file();
 		return nullptr == log_file;
@@ -149,12 +170,12 @@ namespace unm
 	//---------------------------------------------------------------------
 	void ULog::rotate_log_file()
 	{
-		std::vector<string> logs;
+		std::vector<ustring> logs;
 
-		for (const auto &entry : fs::directory_iterator(log_file_path))
+		for (const auto &entry : fs::directory_iterator(file_path))
 		{
-			auto name = entry.path().filename().string();
-			if (ulog_ext == entry.path().extension().string() && log_file_name.size() == name.size())
+			ustring name = entry.path().filename().native();
+			if (file_ext == entry.path().extension().native() && file_name.size() == name.size())
 			{
 				logs.emplace_back(std::move(name));
 			}
@@ -164,7 +185,7 @@ namespace unm
 			std::sort(std::begin(logs), std::end(logs));
 			for (int i = 0; i < static_cast<int>(logs.size()) - max_files; ++i)
 			{
-				fs::remove(log_file_path + "/" + logs[i]);
+				fs::remove(file_path + utf8_to_native("/") + logs[i]);
 			}
 		}
 	}

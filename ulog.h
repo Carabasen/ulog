@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <type_traits>
 #include <string>
 /*
@@ -17,6 +17,13 @@ Usage:
 #define ERR(...) ulog.val("ERR: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define WARN(...) ulog.val("WARN: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define LOG(...) ulog.val(#__VA_ARGS__, "=", __VA_ARGS__)
+
+#ifdef _WIN32
+	#define ustring std::wstring
+#else
+	#define ustring std::string
+#endif
+
 
 //--------------------------------------------------------------------- UMsg
 // todo maybe std::to_chars for better perfomance?
@@ -58,10 +65,13 @@ private:
 	std::string buf;
 };
 
+//---------------------------------------------------------------------
 namespace unm
 {
 	using std::string;
 	class UVigilantCaller;
+	
+	ustring utf8_to_native(const std::string &istr);
 
 	//--------------------------------------------------------------------- unm::ULog
 	class ULog
@@ -98,8 +108,10 @@ namespace unm
 		string current_date();
 
 	private:
-		static string log_file_name;
-		static string log_file_path;
+		static ustring file_ext;
+		static ustring file_prefix;
+		static ustring file_path;
+		static ustring file_name;
 		static std::FILE *log_file;
 		static thread_local string fmt_thread_name;
 
