@@ -50,7 +50,7 @@ The Unlicense
 	// ulog(...) - same as ulog.val(...) but the parameters are not separated by a space automatically
 	ulog(fname, " is opened = ", isOpened);
 	// "[27.09.2019 18:48:35:964] [main] useful_file.txt is opened = true"
-	ulog.val(L(fname), L(isOpened);
+	ulog.val(L(fname), L(isOpened));
 	// "[27.09.2019 18:48:35:964] [main] fname = useful_file.txt isOpened = true"
 
 	ulog("Processing...");
