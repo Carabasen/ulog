@@ -156,7 +156,10 @@ namespace unm
 	bool ULog::create_log_file()
 	{
 		if (nullptr != log_file) fclose(log_file);
-		if (file_path.empty()) file_path = fs::current_path().native(); else fs::create_directories(file_path);
+
+		if (!fs::path(file_path).is_absolute()) file_path = fs::current_path().native() + file_path;
+		fs::create_directories(file_path);
+
 		auto date = current_date();
 		file_name = file_prefix + ustring(date.begin(), date.end()) + file_ext;
 #ifdef _WIN32
