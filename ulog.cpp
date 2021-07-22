@@ -25,7 +25,7 @@ namespace unm
 	constexpr bool log2con = true;
 	constexpr bool log2file = true;
 	constexpr bool timestamps_in_console = false;          // add timestamps to console, if not, timestaps are written only to a log file
-	constexpr int flush_interval_ms = 100;                 // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
+	constexpr int flush_interval_ms = 0;                   // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
 	constexpr int max_files = 15;                          // max log files before rotating
 	constexpr bool add_thread_names = true;                // add current thread name to each log line
 	ustring ULog::file_path = utf8_to_native(u8"");        // ulog file prefix UTF8
