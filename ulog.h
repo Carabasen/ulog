@@ -7,6 +7,8 @@ Usage:
 
 	ulog.val("Anything you want to log", strings, numbers, user_types, "separated by comma");          // ulog.val("Number is", 0); -> "Number is 0"
 	ulog("same as ulog.val", "but the parameters are not separated by a space automatically");         // ulog("Number is", 0); -> "Number is0" 
+	L(param) macro: (param) unwraps to "param", "=", param                                             // auto t = "text"; auto v == 10; 
+	                                                                                                   // ulog.val(L(t), L(v)); -> t = text v = 10
 	ERR("Macro wrap for errors", "same as ulog.val plus function name, file name and line number ");   // ERR("Code", 0); -> "ERR:  0, main [ C:\ulog\ulog_test\ulog_test.cpp 97 ]"
 	WARN("Same as ERR, but WARN");
 	LOG(...) - macro for log name/value at once                                                        // bool needMoney = true; LOG(needMoney); -> "needMoney = true"
@@ -17,6 +19,7 @@ Usage:
 #define ERR(...) ulog.val("ERR: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define WARN(...) ulog.val("WARN: ", __VA_ARGS__, "[", __FUNCTION__, __FILE__, __LINE__, "]")
 #define LOG(...) ulog.val(#__VA_ARGS__, "=", __VA_ARGS__)
+#define L(...) #__VA_ARGS__, "=", __VA_ARGS__
 
 #ifdef _WIN32
 	#define ustring std::wstring

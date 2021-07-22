@@ -50,6 +50,9 @@ The Unlicense
 	// ulog(...) - same as ulog.val(...) but the parameters are not separated by a space automatically
 	ulog(fname, " is opened = ", isOpened);
 	// "[27.09.2019 18:48:35:964] [main] useful_file.txt is opened = true"
+	ulog.val(L(fname), L(isOpened);
+	// "[27.09.2019 18:48:35:964] [main] fname = useful_file.txt isOpened = true"
+
 	ulog("Processing...");
 	// "[27.09.2019 18:48:35:964] [main] Processing..."
 
@@ -112,7 +115,7 @@ The Unlicense
 	constexpr bool log2con = true;
 	constexpr bool log2file = true;
 	constexpr bool timestamps_in_console = false;    // add timestamps to console, if not, timestaps are written only to a log file
-	constexpr int flush_interval_ms = 100;           // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
+	constexpr int flush_interval_ms = 0;             // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
 	constexpr int max_files = 15;                    // max log files before rotating
 	constexpr std::string_view ulog_ext(".log");     // ulog file extension
 	constexpr std::string_view ulog_prefix("ulog_"); // ulog file prefix
