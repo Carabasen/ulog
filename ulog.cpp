@@ -28,9 +28,9 @@ namespace unm
 	constexpr int flush_interval_ms = 0;                   // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
 	constexpr int max_files = 15;                          // max log files before rotating
 	constexpr bool add_thread_names = true;                // add current thread name to each log line
-	ustring ULog::file_path = utf8_to_native(u8"");        // ulog file prefix UTF8
-	ustring ULog::file_prefix = utf8_to_native(u8"ulog_"); // ulog file extension UTF8
-	ustring ULog::file_ext = utf8_to_native(u8".log");     // path to store log files, if empty, then the current working directory is used UTF8
+	ustring ULog::file_path = utf8_to_native(u8"");        // path to store log files, if empty, then the current working directory is used UTF8
+	ustring ULog::file_prefix = utf8_to_native(u8"ulog_"); // ulog file prefix UTF8
+	ustring ULog::file_ext = utf8_to_native(u8".log");     // ulog file extension UTF8
 	//---------------------------------------------------------------------
 	ustring ULog::file_name;
 
