@@ -27,7 +27,6 @@ Usage:
 	#define ustring std::string
 #endif
 
-
 //--------------------------------------------------------------------- UMsg
 // todo maybe std::to_chars for better perfomance?
 // todo add wstring
@@ -102,6 +101,12 @@ namespace unm
 	private:
 		ULog();
 		~ULog();
+		static void kill_ulog();
+
+		ULog(const ULog&) = delete;
+		ULog& operator=(const ULog&) = delete;
+		ULog(ULog&&) = delete;
+		ULog& operator=(ULog&&) = delete;
 
 		bool create_log_file();
 		void rotate_log_file();

@@ -107,8 +107,27 @@ namespace unm
 	//--------------------------------------------------------------------- ULog
 	ULog &ULog::get_instance()
 	{
-		static ULog instance; // it's mt safe since c++11
-		return instance;
+		// todo proper phoenix multithreaded singleton
+		// a "leaking" singleton it is ok, but dirty
+		static ULog *single = new ULog;
+		return *single;
+
+//		static std::mutex ulog_guard;
+//		if (!single)
+//		{
+//			std::unique_lock<std::mutex> lock(ulog_guard);
+//			if (!single)
+//			{
+//				single = new ULog;
+//				//todo infinite-leaking
+//				//std::atexit(kill_ulog);
+//			}
+//		}
+//		return *single;
+
+		// no more meyers
+		//		static ULog instance; // it's mt safe since c++11
+		//		return instance;
 	}
 	//---------------------------------------------------------------------
 	void ULog::set_this_thread_name(const string &name)
@@ -151,6 +170,12 @@ namespace unm
 	{
 		delete flusher;
 		if constexpr (log2file) if (nullptr != log_file) fclose(log_file);
+	}
+	//---------------------------------------------------------------------
+	void ULog::kill_ulog()
+	{
+		if (single) single->~ULog();
+		single = nullptr;
 	}
 	//---------------------------------------------------------------------
 	bool ULog::create_log_file()
