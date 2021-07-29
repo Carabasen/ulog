@@ -174,8 +174,8 @@ namespace unm
 	//---------------------------------------------------------------------
 	void ULog::kill_ulog()
 	{
-		if (single) single->~ULog();
-		single = nullptr;
+//		if (single) single->~ULog();
+//		single = nullptr;
 	}
 	//---------------------------------------------------------------------
 	bool ULog::create_log_file()
