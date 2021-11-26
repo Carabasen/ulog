@@ -45,13 +45,17 @@ namespace unm
 	namespace ch = std::chrono;
 	namespace fs = std::filesystem;
 
+#if __cplusplus > 201703L
+	ustring utf8_to_native(const std::u8string &istr)
+#else
 	ustring utf8_to_native(const std::string &istr)
+#endif
 	{
 	#ifdef _WIN32
 		if (istr.empty()) return std::wstring();
-		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &istr[0], (int)istr.size(), NULL, 0);
+		int size_needed = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&istr[0]), (int)istr.size(), NULL, 0);
 		std::wstring wstr(size_needed, 0);
-		MultiByteToWideChar(CP_UTF8, 0, &istr[0], (int)istr.size(), &wstr[0], size_needed);
+		MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&istr[0]), (int)istr.size(), &wstr[0], size_needed);
 		return wstr;
 	#else
 		return istr;

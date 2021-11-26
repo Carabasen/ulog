@@ -73,7 +73,11 @@ namespace unm
 	using std::string;
 	class UVigilantCaller;
 	
+#if __cplusplus > 201703L
+	ustring utf8_to_native(const std::u8string &istr);
+#else
 	ustring utf8_to_native(const std::string &istr);
+#endif
 
 	//--------------------------------------------------------------------- unm::ULog
 	class ULog
