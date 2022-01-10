@@ -28,17 +28,17 @@ namespace unm
 	constexpr int flush_interval_ms = 0;                   // interval betwen log file flush, 0 - flush every write, -1 - do not flush at all
 	constexpr int max_files = 15;                          // max log files before rotating
 	constexpr bool add_thread_names = true;                // add current thread name to each log line
-	ustring ULog::file_path = utf8_to_native(u8"");        // path to store log files, if empty, then the current working directory is used UTF8
-	ustring ULog::file_prefix = utf8_to_native(u8"ulog_"); // ulog file prefix UTF8
-	ustring ULog::file_ext = utf8_to_native(u8".log");     // ulog file extension UTF8
+	ustring ulogger::file_path = utf8_to_native(u8"\\Logs");  // path to store log files, if empty, then the current working directory is used // UTF8
+	ustring ulogger::file_prefix = utf8_to_native(u8"ulog_"); // ulog file prefix UTF8
+	ustring ulogger::file_ext = utf8_to_native(u8".log");     // ulog file extension UTF8
 	//---------------------------------------------------------------------
-	ustring ULog::file_name;
+	ustring ulogger::file_name;
 
-	FILE *ULog::log_file = nullptr;
-	thread_local string ULog::fmt_thread_name;
+	FILE *ulogger::log_file = nullptr;
+	thread_local string ulogger::fmt_thread_name;
 }
 
-unm::ULog &ulog = unm::ULog::get_instance();
+unm::ulogger &ulog = unm::ulogger::get_instance();
 
 namespace unm
 {
@@ -65,11 +65,11 @@ namespace unm
 	// we are doing our best to minimize includes in the header, so... some more clutter here
 	static std::atomic<int> default_thread_id(1);
 	//--------------------------------------------------------------------- UVigilantCaller
-	class UVigilantCaller
+	class uvigilant_caller
 	{
 	public:
-		UVigilantCaller(int interval_ms, const std::function<void()> &func);
-		~UVigilantCaller();
+		uvigilant_caller(int interval_ms, const std::function<void()> &func);
+		~uvigilant_caller();
 
 	public:
 		std::condition_variable cv;
@@ -78,7 +78,7 @@ namespace unm
 		bool enabled;
 	};
 	//---------------------------------------------------------------------
-	UVigilantCaller::UVigilantCaller(int interval_ms, const std::function<void()> &func)
+	uvigilant_caller::uvigilant_caller(int interval_ms, const std::function<void()> &func)
 	{
 		enabled = interval_ms > 0;
 		if (!enabled) return;
@@ -95,7 +95,7 @@ namespace unm
 			});
 	}
 	//---------------------------------------------------------------------
-	UVigilantCaller::~UVigilantCaller()
+	uvigilant_caller::~uvigilant_caller()
 	{
 		if (caller.joinable())
 		{
@@ -108,12 +108,12 @@ namespace unm
 		}
 	}
 
-	//--------------------------------------------------------------------- ULog
-	ULog &ULog::get_instance()
+	//--------------------------------------------------------------------- ulogger
+	ulogger &ulogger::get_instance()
 	{
 		// todo proper phoenix multithreaded singleton
 		// a "leaking" singleton it is ok, but dirty
-		static ULog *single = new ULog;
+		static ulogger *single = new ulogger;
 		return *single;
 
 //		static std::mutex ulog_guard;
@@ -134,7 +134,7 @@ namespace unm
 		//		return instance;
 	}
 	//---------------------------------------------------------------------
-	void ULog::set_this_thread_name(const string &name)
+	void ulogger::set_this_thread_name(const string &name)
 	{
 		if (name.empty())
 		{
@@ -153,7 +153,7 @@ namespace unm
 	//---------------------------------------------------------------------
 	// pf() is officially not recommended, use ulog() and ulog.val() instead
 	//---------------------------------------------------------------------
-	void ULog::pf(char const *const format, ...)
+	void ulogger::pf(char const *const format, ...)
 	{
 		char buf[1024];
 		va_list args;
@@ -163,26 +163,26 @@ namespace unm
 		ulog(buf);
 	}
 	//---------------------------------------------------------------------
-	ULog::ULog()
+	ulogger::ulogger()
 	{
 		if constexpr (log2file) create_log_file();
-		flusher = new UVigilantCaller(flush_interval_ms, [this]() {this->flush(); });
+		flusher = new uvigilant_caller(flush_interval_ms, [this]() {this->flush(); });
 		set_this_thread_name("main");
 	}
 	//---------------------------------------------------------------------
-	ULog::~ULog()
+	ulogger::~ulogger()
 	{
 		delete flusher;
 		if constexpr (log2file) if (nullptr != log_file) fclose(log_file);
 	}
 	//---------------------------------------------------------------------
-	void ULog::kill_ulog()
+	void ulogger::kill_ulog()
 	{
 //		if (single) single->~ULog();
 //		single = nullptr;
 	}
 	//---------------------------------------------------------------------
-	bool ULog::create_log_file()
+	bool ulogger::create_log_file()
 	{
 		if (nullptr != log_file) fclose(log_file);
 
@@ -200,7 +200,7 @@ namespace unm
 		return nullptr == log_file;
 	}
 	//---------------------------------------------------------------------
-	void ULog::rotate_log_file()
+	void ulogger::rotate_log_file()
 	{
 		std::vector<ustring> logs;
 
@@ -217,12 +217,12 @@ namespace unm
 			std::sort(std::begin(logs), std::end(logs));
 			for (int i = 0; i < static_cast<int>(logs.size()) - max_files; ++i)
 			{
-				fs::remove(file_path + utf8_to_native("/") + logs[i]);
+				fs::remove(file_path + utf8_to_native(u8"/") + logs[i]);
 			}
 		}
 	}
 	//---------------------------------------------------------------------
-	void ULog::to_log(const string &buf)
+	void ulogger::to_log(const string &buf)
 	{
 		string prefix;
 		const string cur_time = current_time();
@@ -254,7 +254,7 @@ namespace unm
 		}
 	}
 	//---------------------------------------------------------------------
-	string ULog::current_time()
+	string ulogger::current_time()
 	{
 		auto msec_se = ch::duration_cast<ch::milliseconds>(ch::system_clock::now().time_since_epoch()).count();
 		time_t sec_se = time_t(msec_se / 1000);
@@ -267,7 +267,7 @@ namespace unm
 		return string(time_buf);
 	}
 	//---------------------------------------------------------------------
-	string ULog::current_date()
+	string ulogger::current_date()
 	{
 		time_t sec_se = time_t(ch::duration_cast<ch::seconds>(ch::system_clock::now().time_since_epoch()).count());
 		tm t;
